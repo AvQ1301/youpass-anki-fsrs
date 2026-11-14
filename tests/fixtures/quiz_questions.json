@@ -1,0 +1,32 @@
+{
+  "code": 0,
+  "message": "",
+  "data": {
+    "id": 10435,
+    "title": "Listening fixture",
+    "parts": [{
+      "question_sets": [
+        {
+          "question_type": "FILL_BLANK",
+          "questions": [
+            {"id": 45054, "order": 1, "question_type": "FILL_BLANK", "correct_answer": "age"},
+            {"id": 45055, "order": 2, "question_type": "FILL_BLANK", "correct_answer": "21.50"},
+            {"id": 45056, "order": 3, "question_type": "FILL_BLANK", "correct_answer": "2"},
+            {"id": 45057, "order": 4, "question_type": "FILL_BLANK", "correct_answer": "parking"}
+          ]
+        },
+        {
+          "question_type": "SUMMARY_COMPLETION",
+          "questions": [
+            {"id": 45058, "order": 5, "question_type": "SUMMARY_COMPLETION", "correct_answer": "Argentina"},
+            {"id": 45059, "order": 6, "question_type": "SUMMARY_COMPLETION", "correct_answer": "singing"},
+            {"id": 45060, "order": 7, "question_type": "SUMMARY_COMPLETION", "correct_answer": "piano"},
+            {"id": 45061, "order": 8, "question_type": "SUMMARY_COMPLETION", "correct_answer": "1922"},
+            {"id": 45062, "order": 9, "question_type": "SUMMARY_COMPLETION", "correct_answer": "comedy"},
+            {"id": 45063, "order": 10, "question_type": "SUMMARY_COMPLETION", "correct_answer": "talk"}
+          ]
+        }
+      ]
+    }]
+  }
+}

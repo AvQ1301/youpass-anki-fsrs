@@ -1,0 +1,20 @@
+{
+  "code": 0,
+  "message": "",
+  "data": {
+    "total": 2,
+    "page": 1,
+    "page_size": 20,
+    "items": [
+      {"id": 11274, "title": "Reading fixture A", "date_updated": "2026-01-01T00:00:00Z", "tags": [
+        {"id": 34, "title": "Passage 3", "code": "passage_3"},
+        {"id": 2, "title": "Matching Information", "code": "MATCHING_INFO"},
+        {"id": 9, "title": "Multiple Choice (One Answer)", "code": "MULTIPLE_CHOICE_ONE"}
+      ]},
+      {"id": 11275, "title": "Reading fixture B", "date_updated": "2026-01-01T00:00:00Z", "tags": [
+        {"id": 32, "title": "Passage 1", "code": "passage_1"},
+        {"id": 6, "title": "Gap Filling", "code": "FILL_BLANK"}
+      ]}
+    ]
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "code": 0,
+  "message": "",
+  "data": {
+    "id": 900001,
+    "quiz": 10435,
+    "type": 10,
+    "status": "reviewed",
+    "completed_duration": 433,
+    "date_created": "2026-01-01T12:00:00+07:00",
+    "summary": {
+      "correct": 4,
+      "total": 10,
+      "type": "practice"
+    },
+    "detail": [
+      {"question_id": 45054, "answer": "age", "is_correct": true},
+      {"question_id": 45055, "answer": "21", "is_correct": false},
+      {"question_id": 45056, "answer": "2", "is_correct": true},
+      {"question_id": 45058, "answer": "Agentina", "is_correct": false},
+      {"question_id": 45059, "answer": "singing", "is_correct": true},
+      {"question_id": 45060, "answer": "old", "is_correct": false},
+      {"question_id": 45061, "answer": "1923", "is_correct": false},
+      {"question_id": 45062, "answer": "comedy", "is_correct": true},
+      {"question_id": 45063, "answer": "scene", "is_correct": false}
+    ]
+  }
+}
