@@ -98,7 +98,7 @@ Copy-Item .env.example .env
 ## Daily workflow
 
 1. Review the relevant `IELTS Reading/Listening/Writing/Speaking - YouPass` deck in Anki.
-2. Click **Open Exercise** on the card.
+2. Click **Open Exercise** on the card. The localhost launcher opens the exercise in the authenticated monitored Chrome profile; do not copy the URL into a different browser.
 3. Complete and submit the exercise on YouPass.
 4. The userscript detects the official submission response and posts the score to the local application.
 5. The local application updates score metadata, checks idempotency/due status, and submits the mapped Anki rating.
@@ -197,7 +197,7 @@ For reliable YouPass authentication on Linux, start normal Chrome with a loopbac
 PYTHONPATH="$PWD" uv run python scripts/watch_youpass.py
 ```
 
-The watcher attaches to normal Chrome, so Google/YouPass login and OS cookie encryption continue to work. It observes first-party responses only. It ignores historical GET results unless their answer ID was first observed from a POST submission during the current watcher session. The DevTools port must remain bound to `127.0.0.1`; never expose it to the network.
+The watcher attaches to normal Chrome, so Google/YouPass login and OS cookie encryption continue to work. It observes first-party responses only. It ignores historical GET results unless their answer ID was first observed from a POST submission during the current watcher session. Anki card links point to the local `/open/{exercise_id}` launcher so exercises always open in this monitored profile instead of the desktop's unrelated default browser. The DevTools port must remain bound to `127.0.0.1`; never expose it to the network.
 
 ## Error evidence tracking
 

@@ -61,6 +61,28 @@ class AnkiConnect:
                                             "Front": READING_FRONT if is_reading else FRONT,
                                             "Back": READING_BACK if is_reading else BACK}])
 
+    def update_all_metadata(self, exercises: list[dict[str, Any]]) -> tuple[int, int]:
+        updated = errors = 0
+        actions: list[dict[str, Any]] = []
+        for exercise in exercises:
+            note_id = exercise.get("anki_note_id")
+            if not note_id:
+                errors += 1
+                continue
+            actions.append({"action": "updateNoteFields", "params": {
+                "note": {"id": int(note_id), "fields": self._fields(exercise)}
+            }})
+            if len(actions) == 100:
+                values = self.invoke("multi", actions=actions)
+                updated += sum(value is None or not isinstance(value, dict) or value.get("error") is None for value in values)
+                errors += sum(isinstance(value, dict) and value.get("error") is not None for value in values)
+                actions.clear()
+        if actions:
+            values = self.invoke("multi", actions=actions)
+            updated += sum(value is None or not isinstance(value, dict) or value.get("error") is None for value in values)
+            errors += sum(isinstance(value, dict) and value.get("error") is not None for value in values)
+        return updated, errors
+
     def _deck_name(self, skill: str) -> str:
         return self.settings.anki_deck if skill == "reading" else f"IELTS {skill.title()} - YouPass"
 
@@ -89,7 +111,10 @@ class AnkiConnect:
         return note_id, int(cards[0])
 
     @staticmethod
-    def _fields(exercise: dict[str, Any]) -> dict[str, str]:
+    def _launch_url(exercise_id: str) -> str:
+        return f"http://127.0.0.1:8844/open/{exercise_id}"
+
+    def _fields(self, exercise: dict[str, Any]) -> dict[str, str]:
         if exercise.get("last_band") is not None:
             latest = f'{exercise["last_band"]:g}/9'
             best = f'{exercise.get("best_band", exercise["last_band"]):g}/9'
@@ -102,7 +127,7 @@ class AnkiConnect:
             return {
                 "Exercise ID": html.escape(str(exercise["exercise_id"])),
                 "Title": html.escape(exercise["title"]),
-                "Original URL": exercise["url"],
+                "Original URL": self._launch_url(exercise["exercise_id"]),
                 "Passage number": str(exercise.get("passage_number") or ""),
                 "Question types": question_types,
                 "Question count": str(exercise.get("question_count") or ""),
@@ -118,7 +143,7 @@ class AnkiConnect:
             "Exercise ID": html.escape(str(exercise["exercise_id"])),
             "Skill": skill.title(),
             "Title": html.escape(exercise["title"]),
-            "Original URL": exercise["url"],
+            "Original URL": self._launch_url(exercise["exercise_id"]),
             "Part": part,
             "Question types": question_types,
             "Question count": str(exercise.get("question_count") or ""),

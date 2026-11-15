@@ -49,11 +49,21 @@ async def watch(cdp_url: str, local_url: str) -> None:
                 if not match:
                     return
                 skill, source_id = match
-                try:
-                    event = normalized_result(payload, quiz_payload, skill, source_id)
-                except ValueError:
-                    return
-                async with httpx.AsyncClient(timeout=30) as client:
+                async with httpx.AsyncClient(timeout=30, headers={
+                    "Origin": "https://e-learning.youpass.vn",
+                    "Referer": "https://e-learning.youpass.vn/",
+                }) as client:
+                    quiz = quiz_payload
+                    if quiz is None:
+                        response = await client.get(
+                            f"https://api.youpass.vn/v1/public/quizzes/{source_id}/true/null"
+                        )
+                        response.raise_for_status()
+                        quiz = response.json()
+                    try:
+                        event = normalized_result(payload, quiz, skill, source_id)
+                    except ValueError:
+                        return
                     result = await client.post(local_url.rstrip("/") + "/api/results", json=event)
                     result.raise_for_status()
                 print(f"Saved {event['event_id']} with {len(event['payload']['observations'])} observations", flush=True)

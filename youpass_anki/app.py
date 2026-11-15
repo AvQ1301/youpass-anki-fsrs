@@ -9,11 +9,12 @@ from typing import Any
 from fastapi import BackgroundTasks, FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
-from fastapi.responses import FileResponse, HTMLResponse, PlainTextResponse
+from fastapi.responses import FileResponse, HTMLResponse, PlainTextResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from .anki import AnkiConnect
+from .browser_bridge import BrowserBridge, BrowserBridgeError
 from .config import Settings
 from .crawler import YouPassCrawler
 from .database import Database
@@ -45,11 +46,13 @@ def create_app(settings: Settings | None = None, database: Database | None = Non
     database.initialize()
     anki = anki or AnkiConnect(settings)
     service = SyncService(settings, database, anki)
+    project_root = Path(__file__).parent.parent
+    browser_bridge = BrowserBridge(project_root, settings.playwright_profile)
     app = FastAPI(title="YouPass Anki FSRS", version="0.1.0")
     app.add_middleware(CORSMiddleware, allow_origins=["https://youpass.vn", "https://e-learning.youpass.vn"],
                        allow_methods=["GET", "POST", "PUT"], allow_headers=["Content-Type"])
     app.add_middleware(GZipMiddleware, minimum_size=500, compresslevel=5)
-    static_dir = Path(__file__).parent.parent / "static"
+    static_dir = project_root / "static"
     app.mount("/static", StaticFiles(directory=static_dir), name="static")
     app.state.settings = settings
     app.state.database = database
@@ -64,6 +67,26 @@ def create_app(settings: Settings | None = None, database: Database | None = Non
     def stats() -> dict[str, Any]:
         return {**database.dashboard_stats(), "thresholds": asdict(service.thresholds()),
                 "band_thresholds": asdict(service.band_thresholds())}
+
+    @app.get("/open/{exercise_id:path}")
+    def open_exercise(exercise_id: str) -> RedirectResponse:
+        exercise = database.get_exercise(exercise_id)
+        if not exercise:
+            raise HTTPException(404, "exercise not found")
+        try:
+            browser_bridge.open(exercise["url"])
+        except BrowserBridgeError as exc:
+            raise HTTPException(503, str(exc)) from exc
+        return RedirectResponse("/?opened=" + exercise_id, status_code=303)
+
+    @app.get("/api/browser/status")
+    def browser_status() -> dict[str, bool]:
+        return browser_bridge.status()
+
+    @app.post("/api/anki/refresh-metadata")
+    def refresh_anki_metadata() -> dict[str, int]:
+        updated, errors = anki.update_all_metadata(database.list_exercises())
+        return {"updated": updated, "errors": errors}
 
     @app.get("/api/exercises")
     def exercises(page: int = Query(1, ge=1), page_size: int = Query(50, ge=10, le=100),

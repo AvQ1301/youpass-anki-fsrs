@@ -180,6 +180,7 @@ def test_anki_creation_then_update_does_not_recreate_note() -> None:
     client = httpx.Client(transport=httpx.MockTransport(handler))
     note_id, card_id = AnkiConnect(settings, client).sync_exercise({**vars_for_anki(), "exercise_id": "11274"})
     assert (note_id, card_id) == (101, 202)
+    assert AnkiConnect(settings, client)._fields({**vars_for_anki(), "exercise_id": "11274"})["Original URL"] == "http://127.0.0.1:8844/open/11274"
     assert "addNote" not in calls
     assert calls == ["findNotes", "updateNoteFields", "findCards"]
 

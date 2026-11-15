@@ -20,6 +20,9 @@ class FakeAnki:
     def submit_review(self, card_id, rating):
         return "300"
 
+    def update_all_metadata(self, exercises):
+        return len(exercises), 0
+
 
 def test_result_api_and_duplicate_response(tmp_path: Path) -> None:
     settings = Settings(database_path=tmp_path / "api.db")
@@ -52,6 +55,16 @@ def test_exercise_api_is_paginated_and_searchable(tmp_path: Path) -> None:
     filtered = client.get("/api/exercises?page=1&page_size=20&skill=listening&search=Exercise%201").json()
     assert filtered["items"]
     assert all(item["skill"] == "listening" and "Exercise 1" in item["title"] for item in filtered["items"])
+
+
+def test_refresh_anki_metadata_api(tmp_path: Path) -> None:
+    settings = Settings(database_path=tmp_path / "refresh.db")
+    db = Database(settings.database_path)
+    db.initialize()
+    db.upsert_exercise(Exercise("1", "One", "https://example.test/1"))
+    response = TestClient(create_app(settings, db, FakeAnki())).post("/api/anki/refresh-metadata")
+    assert response.status_code == 200
+    assert response.json() == {"updated": 1, "errors": 0}
 
 
 def test_error_summary_api(tmp_path: Path) -> None:
